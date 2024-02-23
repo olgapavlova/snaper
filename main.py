@@ -5,9 +5,9 @@ from selenium import webdriver
 # Config
 # TODO Move to separated file
 driver_path = "/home/op/Software/SeleniumChromeDriver"
-list_path = "sites.txt"
+list_path = "lists/UX Companies.txt"
 screenshots_path = "shots/"
-browser_width = 1240
+browser_width = 1440
 
 # Init webdriver
 options = webdriver.ChromeOptions()
@@ -35,7 +35,7 @@ try:
         try:
             metrics = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
             page_heigth = metrics['contentSize']['height']
-            print(page_heigth)
+            # print(page_heigth)
         except Exception as mex:
             print(mex)
 
@@ -43,7 +43,7 @@ try:
         try:
             screnshot_by_devtools = driver.execute_cdp_cmd("Page.captureScreenshot", \
                                                            {'format': 'png', 'captureBeyondViewport': True})
-            print(type(screnshot_by_devtools['data']))
+            # print(type(screnshot_by_devtools['data']))
         except Exception as smex:
             print(smex)
 
@@ -56,7 +56,7 @@ try:
             file.write(image_data)
 
         # driver.save_screenshot(file_path)
-        # print(file_path)
+        print(file_path)
 
 except Exception as ex:
     print(ex)
