@@ -10,10 +10,10 @@ driver_path = "/home/op/Software/SeleniumChromeDriver"
 list_path = "lists/UX Companies.txt"
 screenshots_path = "shots/"
 browser_width = 1440
-wait_in_seconds = 5
+wait_in_seconds = 30
 
 # Dir to save shots
-screenshots_path = screenshots_path + datetime.now().strftime("%Y-%M-%d-%H-%M")
+screenshots_path = screenshots_path + datetime.now().strftime("%Y-%m-%d-%H-%M")
 os.mkdir(screenshots_path)
 screenshots_path = screenshots_path + "/"
 # TODO Add check if path exists (however, it is temp decision)
