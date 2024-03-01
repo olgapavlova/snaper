@@ -1,4 +1,6 @@
 import base64
+import os
+from datetime import datetime
 from selenium import webdriver
 # TODO Make unit tests
 
@@ -8,6 +10,12 @@ driver_path = "/home/op/Software/SeleniumChromeDriver"
 list_path = "lists/UX Companies.txt"
 screenshots_path = "shots/"
 browser_width = 1440
+wait_in_seconds = 50
+
+# Dir to save shots
+screenshots_path = screenshots_path + datetime.now().strftime("%Y-%M-%d-%H-%M")
+os.mkdir(screenshots_path)
+# TODO Add check if path exists (however, it is temp decision)
 
 # Init webdriver
 options = webdriver.ChromeOptions()
@@ -29,7 +37,7 @@ try:
     for url in url_list:
         driver.get(url)
         # TODO Replace waiting by explicit one
-        driver.implicitly_wait(5)
+        driver.implicitly_wait(wait_in_seconds)
 
         # Page heigth by Google DevTools
         try:
