@@ -1,5 +1,6 @@
-import base64
 import os
+from snaper import Page
+from pprint import pprint
 from datetime import datetime
 from selenium import webdriver
 # TODO Make unit tests
@@ -7,13 +8,13 @@ from selenium import webdriver
 # Config
 # TODO Move to separated file
 driver_path = "/home/op/Software/SeleniumChromeDriver"
-list_path = "lists/UX Companies.txt"
+list_path = "lists/sites.txt"
 screenshots_path = "shots/"
 browser_width = 1440
 wait_in_seconds = 30
 
 # Dir to save shots
-screenshots_path = screenshots_path + datetime.now().strftime("%Y-%m-%d-%H-%M")
+screenshots_path = screenshots_path + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 os.mkdir(screenshots_path)
 screenshots_path = screenshots_path + "/"
 # TODO Add check if path exists (however, it is temp decision)
@@ -36,33 +37,20 @@ with open(list_path, 'r') as list:
 # Go through the list
 try:
     for url in url_list:
-        driver.get(url)
-        # TODO Replace waiting by explicit one
-        driver.implicitly_wait(wait_in_seconds)
 
-        # Page heigth by Google DevTools
-        try:
-            metrics = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
-            page_heigth = metrics['contentSize']['height']
-            # print(page_heigth)
-        except Exception as mex:
-            print(mex)
+        mydriver = Page(driver, wait_in_seconds)
+        mydriver.open_page(url)
 
-        # Page screenshot by Google DevTools
-        try:
-            screnshot_by_devtools = driver.execute_cdp_cmd("Page.captureScreenshot", \
-                                                           {'format': 'png', 'captureBeyondViewport': True})
-            # print(type(screnshot_by_devtools['data']))
-        except Exception as smex:
-            print(smex)
+        mydriver.get_width_and_height()
+
+        mydriver.make_screenshot()
 
         file_path = url.split("/")[2]
         file_path = screenshots_path + file_path + '.png'
 
         # Save image to file
-        image_data = base64.decodebytes(bytes(screnshot_by_devtools['data'], 'utf-8'))
         with open(file_path, "wb") as file:
-            file.write(image_data)
+            file.write(mydriver.image)
 
         # driver.save_screenshot(file_path)
         print(file_path)
