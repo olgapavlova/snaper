@@ -24,7 +24,7 @@ try:
         mypage = Page(mylist, wait_in_seconds, url)
         mypage.open_page()
         mypage.get_width_and_height()
-        mypage.make_screenshot()
+        mypage.make_one_screenshot_by_selenium()
         mypage.save_image_to_file()
 except Exception as ex:
     print(ex)

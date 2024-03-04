@@ -1,6 +1,7 @@
 import base64
 import os
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 
 class Window:
@@ -68,7 +69,7 @@ class Page:
         except Exception as ex:
             print(ex)
 
-    def make_screenshot(self):
+    def make_screenshot_by_devtools(self):
         '''
         Page screenshot by Google DevTools
         Method description: https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-captureScreenshot
@@ -80,6 +81,24 @@ class Page:
             self.image_data = base64.decodebytes(bytes(screnshot_raw_data['data'], 'utf-8'))
         except Exception as ex:
             print(ex)
+
+
+    def _return_current_screenshot_by_selenium(self):
+        raw_image_data = self._driver.get_screenshot_as_base64()
+        return base64.b64decode(raw_image_data)
+
+
+    def make_one_screenshot_by_selenium(self):
+        self.image_data = self._return_current_screenshot_by_selenium()
+
+
+    # TODO Set of screenshots
+    def make_set_of_screenshots_by_selenium(self):
+        i1 = self._return_current_screenshot_by_selenium()
+        self._driver.find_element("name", "body").send_keys(Keys.PageDown)
+        i2 = self._return_current_screenshot_by_selenium()
+        self.image_data = i2
+
 
     def save_image_to_file(self):
         '''Save image to .png file'''
