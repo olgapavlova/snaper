@@ -1,118 +1,85 @@
-import base64
-import os
+import logging
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from datetime import datetime
 
-class Window:
-    '''Browser window, its config and operations'''
-    def __init__(self, driver_path, wait_in_seconds) -> None:
-        self.driver_path = driver_path
-        self.wait_in_seconds = wait_in_seconds
+def L(text):
+    logging.warning(text)
 
-    def start_driver(self):
-        options = webdriver.ChromeOptions()
-        options.binary_location = self.driver_path
-        # TODO Scrollbar does not work properly, fix it
-        options.add_argument("--hide-scrollbars")
-        self.driver = webdriver.Chrome()
-        self.driver.implicitly_wait(self.wait_in_seconds)
-        # TODO Does it work here? Replace waiting by explicit one
+class Task:
+    '''Main task. One for module.'''
 
-    def set_window_size(self, width, height):
-        # height = self.driver.get_window_size()['height']
-        self.driver.set_window_size(width=width, height=height)
+    def __init__(self, urls, breakpoints, store, options) -> None:
+        L("Создаём объект Task")
+        self.urls = urls
+        self.breakpoints = breakpoints
+        self.store = store
+        self.config = Config(options)
+        self.window = Window(self.config)
+        self.pages = [Page(url) for url in self.urls]
+        L("Объект Task создан")
 
-    def set_window_width_keep_height(self, width):
-        height = self.driver.get_window_size()['height']
-        self.set_window_size(width, height)
+class Config:
+    '''Configuration for all technical behaviours.'''
 
-class List:
-    '''List of URLs to make screenshots'''
-    def __init__(self, txt_file, mywindow) -> None:
-        self.txt_file = txt_file
-        self.url_list = self._set_url_list()
-        self.driver = mywindow.driver
-
-    def _set_url_list(self):
-        url_list = []
-        with open(self.txt_file, 'r') as list:
-            for line in list:
-                url_list.append(line.rstrip('\n'))
-        return url_list
-
-    def set_screenshot_dir(self, screenshots_path):
-        full_screenshots_path = screenshots_path + datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        try:
-            os.mkdir(full_screenshots_path)
-        except Exception as ex:
-            print(ex)
-
-        self.screenshots_dir = full_screenshots_path + "/"
-        # TODO Add check if path exists (however, it is temp decision)
+    def __init__(self, options) -> None:
+        L("Создаём конфигурационный объект Config в объекте Task")
+        self.driver_path = options['driver_path']
+        self.driver_delay = options['driver_delay']
+        self.screenshot_type = options['screenshot_type']
+        L("Объект Config создан")
 
 
 class Page:
-    '''One page from the list'''
-    def __init__(self, list, wait_in_seconds, url) -> None:
-        self.list = list  # TODO Divorce with List class to use separately
-        self._driver = list.driver
+    '''Pages to be screenshoted.'''
+
+    def __init__(self, url) -> None:
+        L(f"Создаём страницу с URL {url}")
         self.url = url
-        self.file_name = self.url.split("/")[2] + ".png"
-
-    def open_page(self):
-        self._driver.get(self.url)
-
-    def get_width_and_height(self):
-        '''
-        Page width and height by Google DevTools
-        Method help: https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-getLayoutMetrics
-        '''
-        try:
-            metrics = self._driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
-            self.width = metrics["cssContentSize"]["width"]
-            self.height = metrics["cssContentSize"]["height"]
-        except Exception as ex:
-            print(ex)
-
-    def make_screenshot_by_devtools(self):
-        '''
-        Page screenshot by Google DevTools
-        Method description: https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-captureScreenshot
-        '''
-        # TODO Add some more types of screenshots
-        try:
-            screnshot_raw_data = self._driver.execute_cdp_cmd("Page.captureScreenshot", \
-                                                           {'format': 'png', 'captureBeyondViewport': True})
-            self.image_data = base64.decodebytes(bytes(screnshot_raw_data['data'], 'utf-8'))
-        except Exception as ex:
-            print(ex)
+        L(f"Страница с URL {self.url} создана")
+        # TODO self.screenshots
+        # TODO self.window
 
 
-    def _return_current_screenshot_by_selenium(self):
-        raw_image_data = self._driver.get_screenshot_as_base64()
-        return base64.b64decode(raw_image_data)
+class Screenshot:
+    '''Some screenshots for each page.'''
+
+    def __init__(self, breakpoint) -> None:
+        L(f"В странице !!! инициируем скриншот с шириной {breakpoint}")
+        self.breakpoint = breakpoint
+        # TODO self.image
+        # TODO self.name
+        # TODO self.window
+        L(f"Скриншот с шириной {self.breakpoint} в странице !!! создан")
 
 
-    def make_one_screenshot_by_selenium(self):
-        self.image_data = self._return_current_screenshot_by_selenium()
+class Window:
+    '''Enhancement for driver class. Some size, etc.'''
+
+    def __init__(self, config) -> None:
+        L("Создаём окно")
+        # TODO self.width
+        # TODO self.height
+        self.driver = Driver(config)
+        L("Окно создано")
 
 
-    # TODO Set of screenshots
-    def make_set_of_screenshots_by_selenium(self):
-        i1 = self._return_current_screenshot_by_selenium()
-        # TODO Use height of window
-        self._driver.execute_script("window.scrollBy(0, 1000)")
-        i2 = self._return_current_screenshot_by_selenium()
-        self.image_data = i2
+class Driver:
+    '''Technical class, no reason to be seen outside.'''
 
+    def __init__(self, config) -> None:
+        L("Создаём драйвер")
+        self.path = config.driver_path
+        self.driver = self.start()
+        L("Драйвер создан")
 
-    def save_image_to_file(self):
-        '''Save image to .png file'''
-        file_path = self.list.screenshots_dir + self.file_name
-        with open(file_path, "wb") as file:
-            file.write(self.image_data)
+    def start(self):
+        '''Start physical browser driver in OS.'''
+        L("Стартуем драйвер")
+        options = webdriver.ChromeOptions()
+        options.binary_location = self.path
+        driver = webdriver.Chrome()
+        L("Драйвер стартовал")
+        return driver
 
-
-if __name__ == "__main__":
-    pass
+    def stop(self):
+        '''Placeholder to stop driver.'''
+        pass
