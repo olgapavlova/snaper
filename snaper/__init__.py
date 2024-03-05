@@ -17,9 +17,13 @@ class Window:
         self.driver.implicitly_wait(self.wait_in_seconds)
         # TODO Does it work here? Replace waiting by explicit one
 
-    def set_window_width(self, width):
-        height = self.driver.get_window_size()['height']
+    def set_window_size(self, width, height):
+        # height = self.driver.get_window_size()['height']
         self.driver.set_window_size(width=width, height=height)
+
+    def set_window_width_keep_height(self, width):
+        height = self.driver.get_window_size()['height']
+        self.set_window_size(width, height)
 
 class List:
     '''List of URLs to make screenshots'''
@@ -95,7 +99,8 @@ class Page:
     # TODO Set of screenshots
     def make_set_of_screenshots_by_selenium(self):
         i1 = self._return_current_screenshot_by_selenium()
-        self._driver.find_element("name", "body").send_keys(Keys.PageDown)
+        # TODO Use height of window
+        self._driver.execute_script("window.scrollBy(0, 1000)")
         i2 = self._return_current_screenshot_by_selenium()
         self.image_data = i2
 
