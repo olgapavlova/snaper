@@ -14,7 +14,7 @@ class Task:
         self.store = store
         self.config = Config(options)
         self.window = Window(self.config)
-        self.pages = [Page(url) for url in self.urls]
+        self.pages = [Page(self, url) for url in self.urls]
         L("Объект Task создан")
 
 class Config:
@@ -31,24 +31,26 @@ class Config:
 class Page:
     '''Pages to be screenshoted.'''
 
-    def __init__(self, url) -> None:
+    def __init__(self, task, url) -> None:
         L(f"Создаём страницу с URL {url}")
+        self.task = task
         self.url = url
         L(f"Страница с URL {self.url} создана")
-        # TODO self.screenshots
+        self.screenshots = [Screenshot(self, breakpoint) for breakpoint in self.task.breakpoints]
         # TODO self.window
 
 
 class Screenshot:
     '''Some screenshots for each page.'''
 
-    def __init__(self, breakpoint) -> None:
-        L(f"В странице !!! инициируем скриншот с шириной {breakpoint}")
+    def __init__(self, page, breakpoint) -> None:
+        L(f"В странице {page.url} инициируем скриншот с шириной {breakpoint}")
+        self.page = page
         self.breakpoint = breakpoint
         # TODO self.image
         # TODO self.name
         # TODO self.window
-        L(f"Скриншот с шириной {self.breakpoint} в странице !!! создан")
+        L(f"Скриншот с шириной {self.breakpoint} в странице {self.page.url} создан")
 
 
 class Window:
