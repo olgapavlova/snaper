@@ -13,6 +13,8 @@ class Window:
     def start_driver(self):
         options = webdriver.ChromeOptions()
         options.binary_location = self.driver_path
+        # TODO Scrollbar does not work properly, fix it
+        options.add_argument("--hide-scrollbars")
         self.driver = webdriver.Chrome()
         self.driver.implicitly_wait(self.wait_in_seconds)
         # TODO Does it work here? Replace waiting by explicit one
