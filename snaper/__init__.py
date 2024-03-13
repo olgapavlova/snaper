@@ -1,8 +1,14 @@
 import logging
 from selenium import webdriver
 
-def W(text):
-    logging.warning(text)
+def L(function):
+    def wrapped(*args):
+        logging.warning(function.__name__)
+        result = function(*args)
+        logging.warning('...stop')
+        return result
+
+    return wrapped
 
 def D(text):
     logging.debug(text)
@@ -113,32 +119,38 @@ class Screenshot:
         D(f".....имя файла {name}")
         return name
 
+    @L
     def make_image(self):
-        W(f"Начинаю делать скриншот")
         self._make_image_first()
 
+    @L
     def _make_image_first(self):
-        W(f"Делаю скриншот первой страницы")
+        pass
 
+    @L
     def _make_image_full(self):
-        W(f"Делаю скриншот по схеме full")
+        pass
 
+    @L
     def _make_image_stepbystep(self):
-        W(f"Делаю скриншот по схеме stepbystep")
+        pass
 
+    @L
     def _make_image_updown(self):
-        W(f"Делаю скриншот по схеме updown")
+        pass
 
+    @L
     def save(self):
-        W(f"Сохраняю скриншот")
         self._merge_image()
         self._write_to_file()
 
+    @L
     def _merge_image(self):
-        W(f"Объединяю части скриншота в одно изображение")
+        pass
 
+    @L
     def _write_to_file(self):
-        W(f"Записываю в файл {self.name} в каталоге {self.page.task.store}")
+        pass
 
 
 class Window:
