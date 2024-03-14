@@ -1,28 +1,25 @@
 import base64
+import time
 from selenium import webdriver
+
 
 class Window:
     '''Browser window, its config and operations'''
     def __init__(self, wait_in_seconds) -> None:
         self.wait_in_seconds = wait_in_seconds
 
-
     def start_driver(self):
         self.driver = webdriver.Chrome()
 
-
     def set_window_size(self, width, height):
         self.driver.set_window_size(width=width, height=height)
-
 
     def set_window_width_but_keep_height(self, width):
         height = self.driver.get_window_size()['height']
         self.set_window_size(width, height)
 
-
     def open_page(self, url):
         self.driver.get(url)
-
 
     def get_page_width_and_height(self):
         '''
@@ -37,7 +34,6 @@ class Window:
         except Exception as ex:
             print(ex)
 
-
     def screenshot_full_page(self):
         '''
         Page screenshot by Google DevTools
@@ -51,6 +47,15 @@ class Window:
         except Exception as ex:
             print(ex)
 
+    def screenshot_one_page(self):
+        raw_image_data = self.driver.get_screenshot_as_base64()
+        result = base64.b64decode(raw_image_data)
+        return result
+
+    def scroll_page(self, height):
+        self.driver.execute_script(f"window.scrollBy(0, {height})")
+        return
+
 
 if __name__ == "__main__":
 
@@ -62,4 +67,11 @@ if __name__ == "__main__":
     window.start_driver()
     window.open_page(test_url)
     print(window.get_page_width_and_height())
-    img = window.screenshot_full_page()
+    img_full = window.screenshot_full_page()
+    window.scroll_page(1500)
+    img_one = window.screenshot_one_page()
+    window.scroll_page(0)
+    for i in range(10):
+        window.scroll_page(700)
+        print(i)
+        time.sleep(5)

@@ -59,51 +59,6 @@ class Page:
         self.url = url
         self.file_name = self.url.split("/")[2] + ".png"
 
-    def open_page(self):
-        self._driver.get(self.url)
-
-    def get_width_and_height(self):
-        '''
-        Page width and height by Google DevTools
-        Method help: https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-getLayoutMetrics
-        '''
-        try:
-            metrics = self._driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
-            self.width = metrics["cssContentSize"]["width"]
-            self.height = metrics["cssContentSize"]["height"]
-        except Exception as ex:
-            print(ex)
-
-    def make_screenshot_by_devtools(self):
-        '''
-        Page screenshot by Google DevTools
-        Method description: https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-captureScreenshot
-        '''
-        # TODO Add some more types of screenshots
-        try:
-            screnshot_raw_data = self._driver.execute_cdp_cmd("Page.captureScreenshot", \
-                                                           {'format': 'png', 'captureBeyondViewport': True})
-            self.image_data = base64.decodebytes(bytes(screnshot_raw_data['data'], 'utf-8'))
-        except Exception as ex:
-            print(ex)
-
-
-    def _return_current_screenshot_by_selenium(self):
-        raw_image_data = self._driver.get_screenshot_as_base64()
-        return base64.b64decode(raw_image_data)
-
-
-    def make_one_screenshot_by_selenium(self):
-        self.image_data = self._return_current_screenshot_by_selenium()
-
-
-    # TODO Set of screenshots
-    def make_set_of_screenshots_by_selenium(self):
-        i1 = self._return_current_screenshot_by_selenium()
-        # TODO Use height of window
-        self._driver.execute_script("window.scrollBy(0, 1000)")
-        i2 = self._return_current_screenshot_by_selenium()
-        self.image_data = i2
 
 
     def save_image_to_file(self):
