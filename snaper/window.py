@@ -56,6 +56,15 @@ class Window:
         self.driver.execute_script(f"window.scrollBy(0, {height})")
         return
 
+    def screenshots_step_by_step(self):
+        size = self.get_page_width_and_height()
+        result = []
+        for i in range(round(size["height"]/700 + 1)):
+            img = self.screenshot_one_page()
+            result.append(img)
+            self.scroll_page(700)
+        return result
+
 
 if __name__ == "__main__":
 
@@ -70,8 +79,6 @@ if __name__ == "__main__":
     img_full = window.screenshot_full_page()
     window.scroll_page(1500)
     img_one = window.screenshot_one_page()
-    window.scroll_page(0)
-    for i in range(10):
-        window.scroll_page(700)
-        print(i)
-        time.sleep(5)
+    window.scroll_page(-1500)
+    img_set = window.screenshots_step_by_step()
+    print(len(img_set))
