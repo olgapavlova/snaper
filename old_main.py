@@ -1,4 +1,4 @@
-from snaper import Window, List, Page
+from snaper import List, Page, window
 # TODO Make unit tests
 
 # Config
@@ -11,7 +11,7 @@ wait_in_seconds = 50
 list_txt_file = "lists/sites.txt"
 
 # Browser window
-mywindow = Window(driver_path, wait_in_seconds)
+mywindow = window(driver_path, wait_in_seconds)
 mywindow.start_driver()
 mywindow.set_window_size(browser_width, browser_height)
 

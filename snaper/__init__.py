@@ -153,17 +153,6 @@ class Screenshot:
         pass
 
 
-class Window:
-    '''Enhancement for driver class. Some size, etc.'''
-
-    def __init__(self, config) -> None:
-        D("Создаём окно")
-        # TODO self.width
-        # TODO self.height
-        self.driver = Driver(config)
-        D("Окно создано")
-
-
 class Driver:
     '''Technical class, no reason to be seen outside.'''
 
