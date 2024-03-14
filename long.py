@@ -19,3 +19,7 @@ def L(function):
 
 
 window = Window(10)
+window.start_driver()
+window.open_page('https://www.producthunt.com')
+img = window.screenshot_full_page()
+print(type(img))
