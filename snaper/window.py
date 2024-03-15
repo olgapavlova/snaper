@@ -1,7 +1,8 @@
 import base64
 import time
+import io
 from selenium import webdriver
-
+from PIL import Image
 
 class Window:
     '''Browser window, its config and operations'''
@@ -49,7 +50,8 @@ class Window:
 
     def screenshot_one_page(self):
         raw_image_data = self.driver.get_screenshot_as_base64()
-        result = base64.b64decode(raw_image_data)
+        binary_source = base64.b64decode(raw_image_data)
+        result = binary_source # self.create_image_object_from_binary_source(binary_source)
         return result
 
     def scroll_page(self, height):
@@ -58,17 +60,32 @@ class Window:
 
     def screenshots_step_by_step(self):
         size = self.get_page_width_and_height()
+        height_step = self.count_screen_heigth()
         result = []
-        for i in range(round(size["height"]/700 + 1)):
+        for i in range(round(size["height"]/height_step + 1)):
             img = self.screenshot_one_page()
             result.append(img)
-            self.scroll_page(700)
+            self.scroll_page(height_step)
         return result
+
+    def count_screen_heigth(self):
+        one_page_screenshot = self.screenshot_one_page()
+        im = self.create_image_object_from_binary_source(one_page_screenshot)
+        return im.height
+
+    # TODO Where to move? Nothing to do here
+    def create_image_object_from_binary_source(self, binary_source):
+        return Image.open(io.BytesIO(binary_source))
+
+    def save_image_to_file(self, image, file):
+        with open(file, "wb") as file:
+            file.write(image)
 
 
 if __name__ == "__main__":
 
     test_url = "https://www.producthunt.com"
+    test_screenshot_dir = "test_screenshot_dir/"
 
     window = Window(10)
     assert window.wait_in_seconds == 10
@@ -77,8 +94,17 @@ if __name__ == "__main__":
     window.open_page(test_url)
     print(window.get_page_width_and_height())
     img_full = window.screenshot_full_page()
+    window.save_image_to_file(img_full, f"{test_screenshot_dir}img_full.png")
+
     window.scroll_page(1500)
     img_one = window.screenshot_one_page()
+    window.save_image_to_file(img_one, f"{test_screenshot_dir}img_one.png")
+
     window.scroll_page(-1500)
     img_set = window.screenshots_step_by_step()
     print(len(img_set))
+    for (num, img) in enumerate(img_set):
+        window.save_image_to_file(img, f"{test_screenshot_dir}img_{num}.png")
+
+
+    print(window.count_screen_heigth())

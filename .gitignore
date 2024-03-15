@@ -1,5 +1,6 @@
 shots/
 lists/
+test_screenshot_dir/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
