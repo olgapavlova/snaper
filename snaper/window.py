@@ -35,6 +35,10 @@ class Window:
         except Exception as ex:
             print(ex)
 
+   # TODO Where to move? Nothing to do here
+    def create_image_object_from_binary_source(self, binary_source):
+        return Image.open(io.BytesIO(binary_source))
+
     def screenshot_full_page(self):
         '''
         Page screenshot by Google DevTools
@@ -43,7 +47,8 @@ class Window:
         try:
             screnshot_raw_data = self.driver.execute_cdp_cmd("Page.captureScreenshot", \
                                                         {'format': 'png', 'captureBeyondViewport': True})
-            result = base64.decodebytes(bytes(screnshot_raw_data['data'], 'utf-8'))
+            decoded = base64.decodebytes(bytes(screnshot_raw_data['data'], 'utf-8'))
+            result = self.create_image_object_from_binary_source(decoded)
             return result
         except Exception as ex:
             print(ex)
@@ -51,7 +56,7 @@ class Window:
     def screenshot_one_page(self):
         raw_image_data = self.driver.get_screenshot_as_base64()
         binary_source = base64.b64decode(raw_image_data)
-        result = binary_source # self.create_image_object_from_binary_source(binary_source)
+        result = self.create_image_object_from_binary_source(binary_source)
         return result
 
     def scroll_page(self, height):
@@ -60,31 +65,32 @@ class Window:
 
     def screenshots_step_by_step(self):
         size = self.get_page_width_and_height()
-        height_step = self.count_screen_heigth()
+        height_step = self.count_screen_heigth() - 400
         result = []
         for i in range(round(size["height"]/height_step + 1)):
             img = self.screenshot_one_page()
+            img = self.crop_image_object_from_top_and_bottom(img, 200, 200)
             result.append(img)
             self.scroll_page(height_step)
+            time.sleep(5)
         return result
 
     def count_screen_heigth(self):
-        one_page_screenshot = self.screenshot_one_page()
-        im = self.create_image_object_from_binary_source(one_page_screenshot)
+        im = self.screenshot_one_page()
         return im.height
 
-    # TODO Where to move? Nothing to do here
-    def create_image_object_from_binary_source(self, binary_source):
-        return Image.open(io.BytesIO(binary_source))
-
     def save_image_to_file(self, image, file):
-        with open(file, "wb") as file:
-            file.write(image)
+        image.save(file)
+
+    def crop_image_object_from_top_and_bottom(self, image, top, bottom):
+        stripe = (0, top, image.width, image.height-bottom)
+        image_cropped = image.crop(stripe)
+        return image_cropped
 
 
 if __name__ == "__main__":
 
-    test_url = "https://www.producthunt.com"
+    test_url = "https://www.subject-7.com/unified-testing/"
     test_screenshot_dir = "test_screenshot_dir/"
 
     window = Window(10)
@@ -94,6 +100,7 @@ if __name__ == "__main__":
     window.open_page(test_url)
     print(window.get_page_width_and_height())
     img_full = window.screenshot_full_page()
+    # img_full = window.create_image_object_from_binary_source(img_full)
     window.save_image_to_file(img_full, f"{test_screenshot_dir}img_full.png")
 
     window.scroll_page(1500)
@@ -105,6 +112,5 @@ if __name__ == "__main__":
     print(len(img_set))
     for (num, img) in enumerate(img_set):
         window.save_image_to_file(img, f"{test_screenshot_dir}img_{num}.png")
-
 
     print(window.count_screen_heigth())
